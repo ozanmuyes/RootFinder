@@ -1,12 +1,9 @@
-#include <stdio.h>
-#include <stdlib.h>
-
+#include "common.h"
 #include "tinyexpr.h"
 
 void tinyexpr_test(void);
 
 int main() {
-  tinyexpr_test();
   return 0;
 }
 
