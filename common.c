@@ -1,4 +1,12 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <limits.h>
+#include <string.h>
+#include <float.h>
+#include <math.h>
+
 #include "common.h"
+#include "tinyexpr.h"
 
 te_expr *func = NULL;
 double var_x = 0;
@@ -118,12 +126,6 @@ double get_input_double() {
 }
 
 int compile_function(const char *expression) {
-  // fonksiyona ait her þeyi (deðiþkenleri fonksiyon çaðrýsý) tek bir yerde tutmak için bu proxy fonksiyonlarýný tamamla
-  // te_variable deðiþkenini burada variadic arguments'e göre tanýmla ve sonunda
-  // te_expr* döndürmek için te_compile() fonksiyonunu çaðýr
-
-  // deðiþken sayýsýný bir yerde tut, f() fonksiyonu çaðrýlýrken iþe yarayabilir
-
   int compilation_error = 0;
 
   te_variable vars[] = {
@@ -139,9 +141,7 @@ int compile_function(const char *expression) {
   return 0;
 }
 
-/**
- * Calls the compiled function with 1 parameter.
- */
+// Calls the compiled function with 1 parameter.
 double f(double variable_x) {
   var_x = variable_x;
 

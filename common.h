@@ -1,15 +1,6 @@
 #ifndef COMMON_H_INCLUDED
 #define COMMON_H_INCLUDED
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <limits.h>
-#include <string.h>
-#include <float.h>
-#include <math.h>
-
-#include "tinyexpr.h"
-
 // To support step-by-step execution of method define STEP_BY_STEP
 #define STEP_BY_STEP
 
@@ -18,6 +9,17 @@
 struct Interval {
   double start;
   double end;
+};
+
+struct FindRootInfo {
+  unsigned int max_iterations;
+  double tolerance;
+  double error;
+  double last_root;
+  double midpoint;
+  // If both false then root is found
+  unsigned int interval_start_changed;
+  unsigned int interval_end_changed;
 };
 
 int get_input(char *output, unsigned int len);
