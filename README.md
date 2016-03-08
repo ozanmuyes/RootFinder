@@ -24,9 +24,5 @@ gcc main.c - o RootFinder
 4. Follow instructions
 
 ## Remarks
-1. Add
-```C
-#define STEP_BY_STEP
-```
-to main.c to enable step-by-step calculation and verbose output of each step.
-2. Enter intervals other than opposite sign of each other (i.e. do NOT enter -5 and 5 as interval)
+1. Add "#define STEP_BY_STEP" to main.c to enable step-by-step calculation and verbose output of each step.  
+2. Enter intervals other than opposite sign of each other (i.e. do NOT enter -5 and 5 as interval).
