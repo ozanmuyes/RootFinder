@@ -36,3 +36,10 @@
 *.depend
 *.layout
 *.workspace
+
+bin/
+obj/
+*.log
+*.cscope*
+*.pdf
+*.jpg
