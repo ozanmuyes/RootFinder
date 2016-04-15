@@ -15,6 +15,7 @@
 #include "regula-falsi.h"
 #include "newton-raphson.h"
 #include "secant.h"
+#include "aitken.h"
 
 #define DEFAULT_STEP_COUNT 52000
 #define DEFAULT_TOLERANCE DBL_EPSILON * 10
@@ -51,6 +52,7 @@ void print_welcome_message();
 void print_help();
 
 enum get_expression_errors get_expression(char **expression);
+enum compile_expression_errors compile_expression(char *expression);
 
 void free_calculation_info(struct CalculationInfo *info);
 
@@ -114,6 +116,7 @@ int main(int argc, char **argv) {
 2) Regula Falsi\n\
 3) Newton-Raphson\n\
 4) Secant\n\
+5) Aitken\n\
 9) Quit\n\
 \n\
 Choice: ");
@@ -162,6 +165,17 @@ Choice: ");
             method_finalize = sc_finalize;
 
             _print("Method name: Secant\n\n");
+
+            break;
+          }
+
+          case 5: {
+            method_initialize = ai_initialize;
+            method_calculate_root = ai_calculate_root;
+            method_additional_dump = ai_additional_dump;
+            method_finalize = ai_finalize;
+
+            _print("Method name: Aitken\n\n");
 
             break;
           }
