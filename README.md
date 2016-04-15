@@ -20,9 +20,16 @@ gcc main.c - o RootFinder
 ## Usage
 1. Select method
 2. Enter function
-3. Enter interval
+3. Enter interval or start point(s)
 4. Follow instructions
 
-## Remarks
-1. Add "#define STEP_BY_STEP" to main.c to enable step-by-step calculation and verbose output of each step.  
-2. Enter intervals other than opposite sign of each other (i.e. do NOT enter -5 and 5 as interval).
+## Command-line Parameters
+* -v (verbose flag) indicates verbosity level;
+  * -v for fatal,
+  * -vv for fatal + error,
+  * -vvv for fatal + error + warning,
+  * -vvvv for fatal + error + warning + debug logging.
+* --no-step Disables step-by-step calculation
+* --function Accepts function string as argument
+* -o Manipulates standard output stream and dump the output to "rootfinder.out" file
+* --version Print version of the program
