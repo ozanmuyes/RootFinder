@@ -11,7 +11,13 @@ git clone https://github.com/ozanmuyes/RootFinder.git
 cd RootFinder
 
 # Build and install the extension
-gcc main.c - o RootFinder
+gcc -Wall -O2  -c bisection.c -o bisection.o
+gcc -Wall -O2  -c newton-raphson.c -o newton-raphson.o
+gcc -Wall -O2  -c regula-falsi.c -o regula-falsi.o
+gcc -Wall -O2  -c rootfinder.c -o rootfinder.o
+gcc -Wall -O2  -c secant.c -o secant.o
+gcc -Wall -O2  -c tinyexpr.c -o tinyexpr.o
+g++  -o RootFinder bisection.o newton-raphson.o regula-falsi.o rootfinder.o secant.o tinyexpr.o  -s
 
 # Start the program
 ./RootFinder
