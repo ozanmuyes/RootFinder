@@ -16,6 +16,7 @@
 #include "newton-raphson.h"
 #include "secant.h"
 #include "aitken.h"
+#include "fixed-point.h"
 
 #define DEFAULT_STEP_COUNT 52000
 #define DEFAULT_TOLERANCE DBL_EPSILON * 10
@@ -117,6 +118,7 @@ int main(int argc, char **argv) {
 3) Newton-Raphson\n\
 4) Secant\n\
 5) Aitken\n\
+6) Fixed Point\n\
 9) Quit\n\
 \n\
 Choice: ");
@@ -176,6 +178,17 @@ Choice: ");
             method_finalize = ai_finalize;
 
             _print("Method name: Aitken\n\n");
+
+            break;
+          }
+
+          case 6: {
+            method_initialize = fp_initialize;
+            method_calculate_root = fp_calculate_root;
+            method_additional_dump = fp_additional_dump;
+            method_finalize = fp_finalize;
+
+            _print("Method name: Fixed Point\n\n");
 
             break;
           }
