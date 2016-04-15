@@ -1,115 +1,156 @@
 #include <stdlib.h>
 #include <stdio.h>
-
+#include <float.h>
 #include <math.h>
 
-#include "common.h"
+#include "rootfinder.h"
 #include "regula-falsi.h"
 
-int rf_check_initial_conditions(struct Interval *interval) {
-  // 1st condition - is function continuous in the given interval
-  // HACK We will assume that function continuous in the given interval
+struct RF_Interval {
+  double start; // a.k.a point 'a'
+  double end; // a.k.a point 'b'
+};
 
-  // 2nd condition - f(a)*f(b)<0
-  if (f(interval->start) * f(interval->end) >= 0) {
-    return 2;
+// HACK Do I need to reload rf_interval in every subsequent function call of rf_initialize on this file?
+// TODO Use (*((struct RF_Interval *)info->additional))->start instead of rf_interval->start
+//      And then is rf_finalize() function necessary?
+struct RF_Interval *rf_interval = NULL;
+
+// TODO Maybe moving these to info will be more suitable
+double rf_last_root = 0,
+       rf_last_a = 0,
+       rf_last_b = 0;
+
+int rf_check_initial_conditions(struct CalculationInfo *info);
+
+void rf_initialize(struct CalculationInfo *info) {
+  // iteration_max, tolerance are NOT assigned yet - do NOT use them, or assign them
+
+  // Allocate and set info->additional
+  rf_interval = (struct RF_Interval *)calloc(1, sizeof(struct RF_Interval));
+  info->additional = rf_interval;
+
+  // Get necessary inputs specific to the method
+  int input_error = -1;
+  while (input_error != 0) {
+    printf("Enter interval start value: ");
+    rf_interval->start = get_input_double(&input_error);
   }
 
-  // So far so good - return without an error code
-  return 0;
+  input_error = -1;
+  while (input_error != 0) {
+    printf("Enter interval end value: ");
+    rf_interval->end = get_input_double(&input_error);
+
+    // interval start and interval end can NOT be equal
+    if (fabs(rf_interval->start - rf_interval->end) <= DBL_EPSILON) {
+      input_error = -1;
+    }
+  }
+
+  // Set root to DBL_EPSILON when there is no root
+  int check_initial_conditions_result = rf_check_initial_conditions(info);
+  if (check_initial_conditions_result > 0) {
+    // TODO Print the index of failed initial condition (check_initial_conditions_result is the failed condition index)
+
+    info->root = DBL_EPSILON;
+    info->root_status = root_status_no_root;
+  } else {
+    // TODO Get method specific inputs and set in info here
+  }
 }
 
-int rf_find_root(struct Interval *interval, unsigned int max_iterations, double tolerance, double *root) {
-  unsigned int iteration_idx = 0;
-  double last_root = 0,
-         midpoint = 0,
-         error = 0;
-  struct Interval *candidate_interval = (struct Interval *)malloc(sizeof(struct Interval));
+void rf_calculate_root(struct CalculationInfo *info) {
+  // Here we can call f() function to evaluate the x for given expression
+  // We MUST check and call step() in each step
 
-#ifdef STEP_BY_STEP
-  int bHasIntervalEndChanged = 0,
-      bSkipThroughEnd = 0,
-      bVerboseSkipThroughEnd = 0;
-  char *szStep = (char *)malloc(sizeof(char) * 8);
-  unsigned int iStep = 0,
-               iSkipTo = 0;
+  double temp, // this will help when swapping points
+         f_a,
+         f_b;
+  rf_interval = (struct RF_Interval *) info->additional;
 
-  printf("After each step you will be asked to continue, skip, or terminate the program.\n\
-* Hit Enter without typing anything to continue to next step,\n\
-* Type 's' and hit Enter to skip the loop through to get the result,\n\
-* Type 'v' and hit Enter to verbose skip the loop through to get the result,\n\
-* Type 'q' and hit Enter to terminate the program,\n\
-* Type a number and hit Enter to skip this many steps.\n\n");
-#endif // STEP_BY_STEP
+  while (info->iteration_index < info->iteration_max && info->root_status != root_status_root) {
+    f_a = f(rf_interval->start);
+    if (isnan(f_a)) {
+      // log some warning and break the loop
+      _log(__FILE__, __LINE__, log_level_warning, "Could not calculate the function value of interval start value (NaN).");
 
-  while (max_iterations > iteration_idx) {
-    last_root = midpoint;
-    midpoint = interval->end - (((interval->end) * f(interval->end)) / (f(interval->end) - f(interval->start)));
-    error = fabs(last_root - midpoint);
+      info->root_status = root_status_error;
 
-    if (error < tolerance || f(midpoint) == 0) {
       break;
     }
 
-    /*
-     * Check initial conditions for [interval.start, midpoint];
-     * - If passes use them as new interval.
-     * - If NOT passes use [midpoint, interval.end] as new interval.
-     */
-    candidate_interval->start = interval->start;
-    candidate_interval->end = midpoint;
-    if (rf_check_initial_conditions(candidate_interval) == 0) {
-      interval->end = midpoint;
+    f_b = f(rf_interval->end);
+    if (isnan(f_b)) {
+      // log some warning and break the loop
+      _log(__FILE__, __LINE__, log_level_warning, "Could not calculate the function value of interval end value (NaN).");
 
-#ifdef STEP_BY_STEP
-      bHasIntervalEndChanged = 1;
-#endif // STEP_BY_STEP
+      info->root_status = root_status_error;
+
+      break;
+    }
+
+    // Store last calculated root to find absolute error
+    rf_last_root = info->root;
+    // root = b - (((b - a) * f(b)) / f(b) - f(a)
+    info->root = rf_interval->end - (((rf_interval->end - rf_interval->start) * f_b) / (f_b - f_a));
+    info->absolute_error = fabs(rf_last_root - info->root);
+    info->f_root = f(info->root);
+
+    rf_last_a = rf_interval->start;
+    rf_last_b = rf_interval->end;
+
+    // There is a very little chance to find the root by f(c)
+    if (fabs(info->f_root) <= DBL_EPSILON || fabs(info->absolute_error) <= info->tolerance) {
+      // Root is found
+      info->root_status = root_status_root;
     } else {
-      interval->start = midpoint;
+      // Try [a, c] and check if initial conditions can be obtained
+      temp = rf_interval->end; // temp is 'b'
+      rf_interval->end = info->root;
 
-#ifdef STEP_BY_STEP
-      bHasIntervalEndChanged = 0;
-#endif // STEP_BY_STEP
-    }
+      if (rf_check_initial_conditions(info) != 0) {
+        // [c, b] is the new rf_interval
 
-#ifdef STEP_BY_STEP
-    if (bSkipThroughEnd == 0) {
-      printf("Iteration Index   : %d\nError             : %.16lf\nIs [a, c] Selected: %s\nCalculated Root   : %.16lf\n\n", iteration_idx + 1, error, bHasIntervalEndChanged == 0 ? "No" : "Yes", midpoint);
-
-      if (iSkipTo == iteration_idx) {
-        iSkipTo = 0;
+        // So substitute 'a' with 'c' and restore 'b' - so new rf_interval will be [c, b]
+        rf_interval->start = rf_interval->end;
+        rf_interval->end = temp;
       }
 
-      if (iSkipTo == 0 && bVerboseSkipThroughEnd == 0) {
-        fgets(szStep, 8, stdin);
-
-        if (szStep[0] == 's') {
-          // Skip the loop through the end
-
-          bSkipThroughEnd = 1;
-        } else if (szStep[0] == 'v') {
-          bVerboseSkipThroughEnd = 1;
-        } else if (szStep[0] == 'q') {
-          exit(2);
-        } else if ('0' <= szStep[0] && szStep[0] <= '9') {
-          sscanf(szStep, "%d", &iStep);
-
-          iSkipTo = iteration_idx + iStep + 1;
-        }
-      }
+      // [a, c] is the new rf_interval
     }
-#endif // STEP_BY_STEP
 
-    // The iteration counter MUST be incremented at the end of the loop,
-    // so we can keep track of in which step we are in, in the loop codes.
-    iteration_idx += 1;
+    // Call step() function on each step if info->flag_step_by_step was set
+    if (info->flag_step_by_step == 1) {
+      step(info);
+    }
+
+    info->iteration_index += 1;
+  }
+}
+
+void rf_additional_dump(struct CalculationInfo *info, char **dump) {
+  rf_interval = (struct RF_Interval *) info->additional;
+
+  // Do NOT end with new line character
+  sprintf(*dump, "a: %.16lf\n\
+b: %.16lf", rf_last_a, rf_last_b);
+}
+
+void rf_finalize(struct CalculationInfo *info) {
+  free(rf_interval);
+  info->additional = NULL;
+}
+
+int rf_check_initial_conditions(struct CalculationInfo *info) {
+  rf_interval = (struct RF_Interval *) info->additional;
+  // 1st Check for the function continuity within given interval
+  // HACK We assume that the function -f(x)- is continuous within given interval
+
+  // 2nd Check if f(a)*f(b)<0
+  if (f(rf_interval->start) * f(rf_interval->end) >= 0) {
+    return 2;
   }
 
-  // Clean-up
-  free(candidate_interval);
-#ifdef STEP_BY_STEP
-  free(szStep);
-#endif // STEP_BY_STEP
-
-  *root = midpoint;
+  return 0;
 }

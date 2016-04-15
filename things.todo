@@ -1,0 +1,21 @@
+* Populate accepted options (command line arguments) (e.g. --function for function input etc.)
+* Read through file - parse arguments from file
+* Complete the codes executed after each step (digit for skip count, s for skip through end of calculation, v for skip through end of calculation etc.)
+
+* < (input operator) and remaining command line argument (input file) will be treated as same;
+  Read command line arguments from file (except --output argument)
+* > (output operator), >> (output append operator) and --output "file_path" command line argument will be treated as same
+  Outputs to the specified file
+* -v (verbose flag) indicates verbosity level;
+  * -v for fatal,
+  * -vv for fatal + error,
+  * -vvv for fatal + error + warning,
+  * -vvvv for fatal + error + warning + debug logging.
+
+Sources:
+* Getopt
+  http://www.gnu.org/software/libc/manual/html_node/Getopt-Long-Option-Example.html#Getopt-Long-Option-Example
+* Example
+  https://en.wikipedia.org/wiki/Bisection_method#Example:_Finding_the_root_of_a_polynomial
+* Wolfram Root Finder
+  http://www.wolframalpha.com/widgets/view.jsp?id=a7d8ae4569120b5bec12e7b6e9648b86

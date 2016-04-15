@@ -1,9 +1,9 @@
 #ifndef REGULA_FALSI_H_INCLUDED
 #define REGULA_FALSI_H_INCLUDED
 
-#include "common.h"
-
-int rf_check_initial_conditions(struct Interval *interval);
-int rf_find_root(struct Interval *interval, unsigned int max_iterations, double tolerance, double *root);
+void rf_initialize(struct CalculationInfo *info);
+void rf_calculate_root(struct CalculationInfo *info);
+void rf_additional_dump(struct CalculationInfo *info, char **dump);
+void rf_finalize(struct CalculationInfo *info);
 
 #endif // REGULA_FALSI_H_INCLUDED
