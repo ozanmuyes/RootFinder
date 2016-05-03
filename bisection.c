@@ -45,13 +45,27 @@ void bs_initialize(struct CalculationInfo *info) {
 
   // Set root to DBL_EPSILON when there is no root
   int check_initial_conditions_result = bs_check_initial_conditions(info);
-  if (check_initial_conditions_result > 0) {
-    // TODO Print the index of failed initial condition (check_initial_conditions_result is the failed condition index)
+  switch (check_initial_conditions_result) {
+    case 0: {
+      // TODO Get method specific inputs and set in info here
 
-    info->root = DBL_EPSILON;
-    info->root_status = root_status_no_root;
-  } else {
-    // TODO Get method specific inputs and set in info here
+      break;
+    }
+
+    case 1: {
+      // Function is not continuous
+      info->root = DBL_EPSILON;
+      info->root_status = root_status_no_root;
+
+      break;
+    }
+
+    case 2: {
+      info->root = DBL_EPSILON;
+      info->root_status = root_status_multiple_roots;
+
+      break;
+    }
   }
 }
 

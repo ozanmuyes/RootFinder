@@ -44,7 +44,7 @@ void ai_calculate_root(struct CalculationInfo *info) {
 
     ai_additional->x0 = ai_additional->f_x;
 
-    if (fabs(info->root - info->f_root) <= DBL_EPSILON || info->absolute_error <= info->tolerance) {
+    if (fabs(info->root - info->f_root) <= DEFAULT_TOLERANCE || info->absolute_error <= info->tolerance) {
       // Root is found
       info->root_status = root_status_root;
     }

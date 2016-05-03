@@ -3,6 +3,9 @@
 
 #include "tinyexpr.h"
 
+#define DEFAULT_STEP_COUNT 13000
+#define DEFAULT_TOLERANCE DBL_EPSILON * 10
+
 static const char NAME[] = "RootFinder";
 
 /**
@@ -11,7 +14,7 @@ static const char NAME[] = "RootFinder";
  */
 static const int VERSION_MAJOR = 0;
 static const int VERSION_MINOR = 2;
-static const int VERSION_PATCH = 0;
+static const int VERSION_PATCH = 1;
 
 enum log_levels {
   log_level_no = 0,
@@ -44,12 +47,13 @@ enum root_statuses {
   root_status_no_root = 0, // There is no root within the given interval
   root_status_root = 1, // Root has been found within the given interval
   root_status_approx_root, // Maximum step count has been reached and approximate root has been calculated
+  root_status_multiple_roots,
   root_status_error
 };
 
 /**
  * This structure SHOULD be created by rootfinder. Purpose of this structure is
- * pass the necessary data between method's function(s) and rootfinder functions.
+ * passing the necessary data between method's function(s) and rootfinder methods.
  */
 struct CalculationInfo {
   unsigned int iteration_max;

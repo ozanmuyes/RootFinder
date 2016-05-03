@@ -18,9 +18,6 @@
 #include "aitken.h"
 #include "fixed-point.h"
 
-#define DEFAULT_STEP_COUNT 52000
-#define DEFAULT_TOLERANCE DBL_EPSILON * 10
-
 /**
  * REMARKS
  *
@@ -289,7 +286,7 @@ Choice: ");
       // TODO Check with method_initalize() function, if error occurs make user to re-enter interval
       (*method_initialize)(info);
 
-      if (info->root_status != root_status_no_root) {
+      if (info->root_status != root_status_no_root && info->root_status != root_status_multiple_roots && info->root_status != root_status_error) {
 #ifndef USE_HARDCODED
         // Get max iteration and/or (error) tolerance, unless method_initialization() did NOT set any of them
         if (info->iteration_max == DEFAULT_STEP_COUNT) {
@@ -341,6 +338,12 @@ Choice: ");
 
       case root_status_approx_root: {
         _print("Maximum step count reached!\nApproximate root: %.16lf\nStep Count: %d\n\n", info->root, info->iteration_index);
+
+        break;
+      }
+
+      case root_status_multiple_roots: {
+        _print("There are more than one root in the given interval.\n\n");
 
         break;
       }
@@ -529,7 +532,7 @@ void print_name_and_version() {
 void print_welcome_message() {
   print_name_and_version();
 
-  printf("Floating-point precision is 16 and epsilon is %.16lf (%e).\n\n", DBL_EPSILON, DBL_EPSILON);
+  printf("Floating-point precision is 16 and epsilon is %.16lf (%e).\n\n", DEFAULT_TOLERANCE, DEFAULT_TOLERANCE);
 }
 
 void print_help() {

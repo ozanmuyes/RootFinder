@@ -42,7 +42,7 @@ void mm_calculate_root(struct CalculationInfo *info) {
     // TODO Change step->interval->start or step->interval->end here
     // or...
 
-    if (fabs(info->f_root) <= DBL_EPSILON || info->absolute_error <= info->tolerance) {
+    if (fabs(info->f_root) <= DEFAULT_TOLERANCE || info->absolute_error <= info->tolerance) {
       // Root is found
       info->root_status = root_status_root;
     } else {

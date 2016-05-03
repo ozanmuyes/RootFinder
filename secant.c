@@ -58,7 +58,7 @@ void sc_calculate_root(struct CalculationInfo *info) {
     sc_additional->f_pkm1 = f(sc_additional->pkm1);
     info->f_root = sc_additional->f_pkm1;
 
-    if (fabs(info->f_root) <= DBL_EPSILON || fabs(info->absolute_error) <= info->tolerance) {
+    if (fabs(info->f_root) <= DEFAULT_TOLERANCE || fabs(info->absolute_error) <= info->tolerance || fabs(sc_additional->pkm2 - sc_additional->pkm1) <= DEFAULT_TOLERANCE) {
       // Root is found
       info->root_status = root_status_root;
     }

@@ -95,7 +95,8 @@ void nr_calculate_root(struct CalculationInfo *info) {
 
 void nr_additional_dump(struct CalculationInfo *info, char **dump) {
   // Do NOT end with new line character
-  sprintf(*dump, "double: %.16lf", info->absolute_error);
+  sprintf(*dump, "");
+  //sprintf(*dump, "Absolute Error    : %.16lf", info->absolute_error);
 }
 
 void nr_finalize(struct CalculationInfo *info) {
