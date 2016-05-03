@@ -13,7 +13,7 @@ static const char NAME[] = "RootFinder";
  * See http://semver.org/ for detailed information.
  */
 static const int VERSION_MAJOR = 0;
-static const int VERSION_MINOR = 2;
+static const int VERSION_MINOR = 3;
 static const int VERSION_PATCH = 1;
 
 enum log_levels {
